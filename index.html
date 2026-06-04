@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI FAQ Chatbot — CodeAlpha</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100vh;background:#0d1117;font-family:'Inter',sans-serif;display:flex;flex-direction:column;align-items:center;padding:18px 10px;color:#e6edf3;}
+.hdr{width:100%;max-width:680px;background:#161b22;border:1px solid #30363d;border-radius:14px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.av0{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#238636,#1f6feb);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.hdr h1{font-size:17px;font-weight:700;}
+.hdr p{font-size:11px;color:#7d8590;margin-top:3px;}
+.dot{margin-left:auto;width:9px;height:9px;border-radius:50%;background:#238636;box-shadow:0 0 6px #238636;flex-shrink:0;}
+.chips{width:100%;max-width:680px;display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px;}
+.chip{padding:5px 11px;border-radius:18px;background:rgba(31,111,235,0.1);border:1px solid rgba(31,111,235,0.3);color:#58a6ff;font-size:11px;cursor:pointer;font-family:inherit;}
+.chip:hover{background:rgba(31,111,235,0.22);}
+.win{width:100%;max-width:680px;background:#161b22;border:1px solid #30363d;border-radius:14px;display:flex;flex-direction:column;height:460px;overflow:hidden;}
+.msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.msg{display:flex;gap:9px;align-items:flex-start;}
+.msg.u{flex-direction:row-reverse;}
+.av{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:2px;}
+.av.b{background:linear-gradient(135deg,#238636,#1f6feb);}
+.av.u{background:#21262d;border:1px solid #30363d;}
+.bbl{max-width:82%;padding:10px 14px;font-size:13px;line-height:1.65;border-radius:4px 13px 13px 13px;background:#21262d;border:1px solid #30363d;color:#e6edf3;white-space:pre-wrap;word-break:break-word;}
+.msg.u .bbl{border-radius:13px 4px 13px 13px;background:linear-gradient(135deg,#1f6feb,#388bfd);border:none;}
+.tag{margin-top:6px;padding-top:6px;border-top:1px solid #30363d;font-size:10px;color:#7d8590;}
+.typ{padding:10px 14px;background:#21262d;border:1px solid #30363d;border-radius:4px 13px 13px 13px;display:flex;gap:4px;align-items:center;}
+.d{width:6px;height:6px;border-radius:50%;background:#58a6ff;animation:bop 1s ease infinite;}
+.d:nth-child(2){animation-delay:0.15s;}.d:nth-child(3){animation-delay:0.3s;}
+@keyframes bop{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-5px);}}
+.inprow{padding:11px 13px;border-top:1px solid #30363d;display:flex;gap:9px;background:#0d1117;}
+#inp{flex:1;background:#161b22;border:1px solid #30363d;border-radius:9px;padding:9px 13px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;resize:none;}
+#inp:focus{border-color:#388bfd;}
+#inp::placeholder{color:#484f58;}
+.sbtn{padding:9px 15px;border-radius:9px;background:linear-gradient(135deg,#238636,#1f6feb);border:none;color:#fff;font-size:17px;cursor:pointer;flex-shrink:0;}
+.sbtn:disabled{background:#21262d;cursor:not-allowed;}
+.ft{color:#21262d;font-size:10px;margin-top:12px;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:#161b22;}::-webkit-scrollbar-thumb{background:#30363d;border-radius:3px;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="av0">🤖</div>
+  <div><h1>AI FAQ Chatbot</h1><p>CodeAlpha Internship — Task 2 · Smart Keyword Matching</p></div>
+  <div class="dot"></div>
+</div>
+
+<div class="chips">
+  <button class="chip" onclick="ask('What is AI?')">What is AI?</button>
+  <button class="chip" onclick="ask('What is machine learning?')">Machine Learning</button>
+  <button class="chip" onclick="ask('What is deep learning?')">Deep Learning</button>
+  <button class="chip" onclick="ask('What is NLP?')">NLP</button>
+  <button class="chip" onclick="ask('types of machine learning')">Types of ML</button>
+  <button class="chip" onclick="ask('list')">All Topics</button>
+</div>
+
+<div class="win">
+  <div class="msgs" id="msgs"></div>
+  <div class="inprow">
+    <textarea id="inp" rows="1" placeholder="Ask anything about AI, ML, Deep Learning..."></textarea>
+    <button class="sbtn" id="sbtn" onclick="send()">➤</button>
+  </div>
+</div>
+<p class="ft">CodeAlpha AI Internship · Task 2 · Smart FAQ Bot</p>
+
+<script>
+// ── FAQ DATABASE — each entry has unique specific answer ──────────
+const FAQ = [
+  {
+    id:"ai",
+    triggers:["what is ai","what is artificial intelligence","define ai","explain ai","ai means","ai definition","tell me about ai","about ai","what do you mean by ai","meaning of ai"],
+    title:"What is Artificial Intelligence?",
+    answer:"🤖 Artificial Intelligence (AI) is the field of computer science focused on building machines that can perform tasks that normally require human intelligence.\n\nExamples of AI tasks:\n• Understanding and generating language\n• Recognizing images and faces\n• Playing games like chess\n• Driving self-driving cars\n• Making recommendations (Netflix, YouTube)\n\nAI systems learn from data and improve over time without being explicitly programmed for every task."
+  },
+  {
+    id:"ml",
+    triggers:["what is machine learning","what is ml","define ml","ml means","explain machine learning","about machine learning","machine learning definition","tell me about machine learning"],
+    title:"What is Machine Learning?",
+    answer:"📊 Machine Learning (ML) is a subset of AI where computers learn automatically from data without being explicitly programmed.\n\nHow it works:\n• You give the computer lots of data (examples)\n• The computer finds patterns in the data\n• It uses those patterns to make predictions on new data\n\nExample: You show a model 10,000 cat photos and 10,000 dog photos — it learns to tell cats from dogs on its own.\n\nML is used in spam filters, recommendation systems, fraud detection, and much more."
+  },
+  {
+    id:"types_ml",
+    triggers:["types of machine learning","types of ml","kinds of machine learning","machine learning types","different types of ml","categories of ml","classification of ml","supervised unsupervised reinforcement"],
+    title:"Types of Machine Learning",
+    answer:"📚 There are 3 main types of Machine Learning:\n\n1️⃣ Supervised Learning\n   • Model learns from labeled data\n   • Example: Email spam detection\n   • Algorithms: Linear Regression, Decision Trees\n\n2️⃣ Unsupervised Learning\n   • Model finds patterns in unlabeled data\n   • Example: Customer grouping (clustering)\n   • Algorithms: K-Means, PCA\n\n3️⃣ Reinforcement Learning\n   • Agent learns by trial and error with rewards\n   • Example: Game-playing AI like AlphaGo\n   • Used in robotics and self-driving cars"
+  },
+  {
+    id:"dl",
+    triggers:["what is deep learning","what is dl","define deep learning","explain deep learning","deep learning means","about deep learning","deep learning definition","tell me about deep learning"],
+    title:"What is Deep Learning?",
+    answer:"🧠 Deep Learning is a type of Machine Learning that uses artificial neural networks with many layers (deep networks) to learn from large amounts of data.\n\nKey features:\n• Uses multiple hidden layers to process data\n• Learns complex patterns automatically\n• Needs large amounts of data and computing power\n\nApplications:\n• Face recognition (like Face ID)\n• Voice assistants (Siri, Alexa)\n• Image classification\n• Language translation\n• Self-driving cars\n\nDeep Learning is behind most modern AI breakthroughs."
+  },
+  {
+    id:"nlp",
+    triggers:["what is nlp","what is natural language processing","define nlp","explain nlp","nlp means","natural language processing definition","about nlp","tell me about nlp","natural language"],
+    title:"What is NLP?",
+    answer:"💬 Natural Language Processing (NLP) is the branch of AI that helps computers understand, interpret, and generate human language (text and speech).\n\nWhat NLP enables:\n• Understanding what you type or say\n• Translating languages (Google Translate)\n• Answering questions (like this chatbot!)\n• Summarizing long documents\n• Detecting emotions in text (sentiment analysis)\n• Auto-correct and autocomplete\n\nPopular NLP tools: BERT, GPT, spaCy, NLTK\n\nNLP is used in virtual assistants, search engines, chatbots, and more."
+  },
+  {
+    id:"nn",
+    triggers:["what is neural network","what is a neural network","neural network means","define neural network","explain neural network","about neural network","neural net","neuron","perceptron"],
+    title:"What is a Neural Network?",
+    answer:"🕸️ A Neural Network is a computational model inspired by the human brain. It consists of layers of connected nodes (neurons) that process information.\n\nStructure:\n• Input Layer → receives data\n• Hidden Layers → process and learn patterns\n• Output Layer → gives the result\n\nHow it learns:\n• Data flows through the network\n• It makes a prediction\n• It measures how wrong it was (error)\n• It adjusts its connections to improve (backpropagation)\n\nNeural networks are the foundation of Deep Learning and power most modern AI systems."
+  },
+  {
+    id:"types_ai",
+    triggers:["types of ai","types of artificial intelligence","kinds of ai","categories of ai","different types of ai","classification of ai","ai types","narrow ai","general ai","super ai","weak ai","strong ai"],
+    title:"Types of Artificial Intelligence",
+    answer:"🗂️ AI is classified in different ways:\n\nBased on capability:\n1️⃣ Narrow AI (Weak AI)\n   • Can do only ONE specific task\n   • Example: ChatGPT, Siri, face recognition\n   • All current AI systems are Narrow AI\n\n2️⃣ General AI (AGI)\n   • Can do ANY intellectual task like a human\n   • Does NOT exist yet — still a research goal\n\n3️⃣ Super AI\n   • Would surpass human intelligence in every way\n   • Hypothetical — does not exist yet\n\nBased on function:\n• Reactive Machines (chess engines)\n• Limited Memory (self-driving cars)\n• Theory of Mind (future)\n• Self-Aware AI (hypothetical)"
+  },
+  {
+    id:"cv",
+    triggers:["what is computer vision","computer vision means","define computer vision","explain computer vision","about computer vision","image recognition","object detection","image processing ai"],
+    title:"What is Computer Vision?",
+    answer:"👁️ Computer Vision is the field of AI that enables machines to interpret and understand visual information from images and videos.\n\nWhat computer vision can do:\n• Detect and identify objects in images\n• Recognize human faces\n• Read text in images (OCR)\n• Track movement in videos\n• Detect diseases in medical scans\n\nApplications:\n• Face ID on your phone\n• Self-driving cars\n• Medical imaging (cancer detection)\n• Quality control in factories\n• Security cameras\n• Augmented Reality (AR)\n\nMain tools: OpenCV, YOLO, TensorFlow Vision"
+  },
+  {
+    id:"rl",
+    triggers:["what is reinforcement learning","reinforcement learning means","define reinforcement learning","explain reinforcement learning","about reinforcement learning","rl in ai","reward punishment learning","agent environment"],
+    title:"What is Reinforcement Learning?",
+    answer:"🎮 Reinforcement Learning (RL) is a type of ML where an agent learns to make decisions by interacting with an environment and receiving rewards or penalties.\n\nHow it works:\n• Agent takes an action in the environment\n• Environment gives a reward (good) or penalty (bad)\n• Agent learns to maximize total rewards over time\n\nReal-world analogy:\nLike training a dog — give treat for good behavior, ignore bad behavior.\n\nApplications:\n• Game-playing AI (AlphaGo, chess, video games)\n• Robot navigation\n• Self-driving cars\n• Stock trading algorithms\n• Personalized recommendations"
+  },
+  {
+    id:"supervised",
+    triggers:["what is supervised learning","supervised learning means","define supervised learning","explain supervised learning","about supervised learning","labeled data","classification regression","supervised ml"],
+    title:"What is Supervised Learning?",
+    answer:"🏷️ Supervised Learning is a type of Machine Learning where the model is trained on labeled data — each input has a known correct output.\n\nHow it works:\n• You provide input data + correct answers\n• Model learns the mapping from input to output\n• It predicts answers for new unseen data\n\nTwo main tasks:\n📌 Classification — predict a category\n   Example: Is this email spam or not spam?\n\n📌 Regression — predict a number\n   Example: What will the house price be?\n\nCommon algorithms:\n• Linear Regression\n• Logistic Regression\n• Decision Trees\n• Support Vector Machines (SVM)\n• Neural Networks"
+  },
+  {
+    id:"unsupervised",
+    triggers:["what is unsupervised learning","unsupervised learning means","define unsupervised learning","explain unsupervised learning","unlabeled data","clustering","k-means","pca","unsupervised ml"],
+    title:"What is Unsupervised Learning?",
+    answer:"🔍 Unsupervised Learning is a type of ML where the model finds patterns in data WITHOUT labeled outputs.\n\nNo one tells the model what is correct — it discovers structure on its own.\n\nMain tasks:\n📌 Clustering — group similar data together\n   Example: Group customers by buying behavior\n\n📌 Dimensionality Reduction — simplify data\n   Example: Compress images while keeping quality\n\n📌 Anomaly Detection — find unusual patterns\n   Example: Detect credit card fraud\n\nCommon algorithms:\n• K-Means Clustering\n• DBSCAN\n• Principal Component Analysis (PCA)\n• Autoencoders"
+  },
+  {
+    id:"overfitting",
+    triggers:["what is overfitting","overfitting means","define overfitting","explain overfitting","underfitting","overfit","model memorize","generalization","bias variance"],
+    title:"What is Overfitting?",
+    answer:"📉 Overfitting happens when a model learns the training data TOO well — including the noise and irrelevant details — and then performs poorly on new unseen data.\n\nSimple analogy:\nLike a student who memorizes exam answers word-for-word but cannot answer questions phrased differently.\n\nSigns of overfitting:\n• Very high accuracy on training data\n• Low accuracy on test/new data\n\nHow to fix overfitting:\n• Get more training data\n• Use simpler model\n• Dropout (randomly ignore neurons)\n• Regularization (L1/L2)\n• Cross-validation\n• Early stopping\n\nOpposite: Underfitting = model is too simple to learn the patterns."
+  },
+  {
+    id:"python",
+    triggers:["why python","python ai","python machine learning","python for ai","python in ml","why use python","python libraries","tensorflow pytorch scikit","numpy pandas","python programming"],
+    title:"Why is Python used in AI/ML?",
+    answer:"🐍 Python is the most popular programming language for AI and Machine Learning because:\n\n✅ Simple & readable syntax\n✅ Huge collection of AI/ML libraries\n✅ Large community and support\n✅ Great for rapid prototyping\n\nKey Python libraries for AI:\n• TensorFlow — deep learning\n• PyTorch — deep learning (research)\n• Scikit-learn — classical ML algorithms\n• NumPy — numerical computation\n• Pandas — data manipulation\n• Matplotlib — data visualization\n• Keras — simplified deep learning\n• NLTK / spaCy — NLP tasks\n• OpenCV — computer vision"
+  },
+  {
+    id:"chatgpt",
+    triggers:["what is chatgpt","chatgpt means","about chatgpt","gpt","openai","gpt-4","large language model","llm","language model","what is gpt"],
+    title:"What is ChatGPT / LLM?",
+    answer:"💬 ChatGPT is an AI chatbot developed by OpenAI, based on the GPT (Generative Pre-trained Transformer) model.\n\nWhat ChatGPT can do:\n• Answer questions conversationally\n• Write essays, emails, code\n• Translate languages\n• Summarize documents\n• Debug code\n• Brainstorm ideas\n\nHow it works:\n• Trained on billions of text documents\n• Uses Transformer architecture\n• Learns to predict the next word\n• Fine-tuned with human feedback (RLHF)\n\nOther LLMs: Google Gemini, Meta LLaMA, Anthropic Claude, Microsoft Copilot\n\nLLM = Large Language Model"
+  },
+  {
+    id:"transformer",
+    triggers:["what is transformer","transformer model","attention mechanism","bert","self-attention","encoder decoder","what is bert","transformer architecture","transformer in ai"],
+    title:"What is a Transformer?",
+    answer:"⚡ A Transformer is a neural network architecture introduced in 2017 that revolutionized AI, especially in NLP.\n\nKey innovation: Attention Mechanism\n• Instead of reading text word by word\n• It looks at ALL words at once\n• It figures out which words are most important for understanding context\n\nStructure:\n• Encoder — understands the input\n• Decoder — generates the output\n\nWhy it's powerful:\n• Processes text in parallel (fast)\n• Handles long-range relationships in text\n• Scales with more data and compute\n\nModels built on Transformers:\n• BERT (Google) — understanding text\n• GPT (OpenAI) — generating text\n• ChatGPT, Gemini, Claude — all use Transformers"
+  },
+  {
+    id:"algorithm",
+    triggers:["what is algorithm","algorithm means","define algorithm","explain algorithm","about algorithm","common ml algorithms","machine learning algorithms","types of algorithms"],
+    title:"What is an Algorithm in AI?",
+    answer:"⚙️ An Algorithm is a step-by-step set of instructions that tells a computer how to solve a problem.\n\nIn AI/ML, algorithms learn from data to make predictions or decisions.\n\nCommon ML Algorithms:\n\n📌 For Classification:\n• Logistic Regression\n• Decision Tree\n• Random Forest\n• Support Vector Machine (SVM)\n• K-Nearest Neighbors (KNN)\n• Neural Networks\n\n📌 For Regression:\n• Linear Regression\n• Ridge / Lasso Regression\n\n📌 For Clustering:\n• K-Means\n• DBSCAN\n\n📌 For Deep Learning:\n• CNN (images)\n• RNN/LSTM (sequences)\n• Transformer (text)"
+  },
+  {
+    id:"data_science",
+    triggers:["what is data science","data science means","define data science","explain data science","about data science","data scientist","big data","data analysis","data analytics"],
+    title:"What is Data Science?",
+    answer:"📈 Data Science is the field that uses statistics, programming, and ML to extract useful insights from large amounts of data.\n\nData Science workflow:\n1. Collect data\n2. Clean and prepare data\n3. Explore and visualize data\n4. Build ML models\n5. Interpret results\n6. Communicate insights\n\nSkills needed:\n• Python or R programming\n• Statistics and mathematics\n• Machine Learning\n• Data visualization (Matplotlib, Tableau)\n• SQL and databases\n• Domain knowledge\n\nDifference: Data Science focuses on insights from data. ML focuses on building predictive models. AI is the broader field."
+  },
+  {
+    id:"cnn",
+    triggers:["what is cnn","convolutional neural network","cnn in deep learning","convolutional network","what is convolutional","image classification deep learning"],
+    title:"What is CNN (Convolutional Neural Network)?",
+    answer:"🖼️ A CNN (Convolutional Neural Network) is a type of deep learning model specifically designed for processing visual data like images and videos.\n\nHow CNN works:\n1. Convolutional Layer — detects features (edges, shapes, textures)\n2. Pooling Layer — reduces size while keeping key info\n3. Fully Connected Layer — makes final prediction\n\nWhat CNN can detect:\n• Edges and corners → shapes → objects → scenes\n\nApplications:\n• Image classification (cat vs dog)\n• Face recognition\n• Medical image analysis\n• Object detection (YOLO)\n• Self-driving cars\n• Handwriting recognition\n\nFamous CNN models: AlexNet, VGG, ResNet, MobileNet"
+  },
+  {
+    id:"rnn",
+    triggers:["what is rnn","recurrent neural network","rnn in deep learning","lstm","what is lstm","sequence model","time series","rnn lstm"],
+    title:"What is RNN / LSTM?",
+    answer:"🔄 An RNN (Recurrent Neural Network) is a type of neural network designed to work with sequential data — data where order matters.\n\nUnlike regular networks:\n• RNN has memory — it remembers previous inputs\n• Processes data step by step in sequence\n\nProblem with RNN:\n• Forgets long-term dependencies (vanishing gradient)\n\nSolution — LSTM (Long Short-Term Memory):\n• Special type of RNN with memory gates\n• Can remember important info over long sequences\n• Forget gate, Input gate, Output gate\n\nApplications:\n• Text generation\n• Speech recognition\n• Language translation\n• Time series prediction (stock prices)\n• Music generation"
+  }
+];
+
+// ── SMART MATCHING ────────────────────────────────────────────────
+function findAnswer(input) {
+  const q = input.toLowerCase().trim().replace(/[?!.,]/g,'');
+
+  // 1. Exact trigger match (strongest signal)
+  for (const faq of FAQ) {
+    for (const t of faq.triggers) {
+      if (q === t) return faq;
+    }
+  }
+
+  // 2. Trigger contains user input OR user input contains trigger
+  for (const faq of FAQ) {
+    for (const t of faq.triggers) {
+      if (q.includes(t) || t.includes(q)) return faq;
+    }
+  }
+
+  // 3. Word overlap scoring — pick BEST match, not first match
+  const qWords = q.split(/\s+/).filter(w => w.length > 2);
+  const stopWords = new Set(['what','which','how','why','when','where','does','can','the','for','and','are','was','were','its','that','this','with','from','have','has','had','not','but','you','your','they','their','them','will','would','could','should','about','explain','define','tell','mean','means','give','please','sir','mam']);
+
+  const keyWords = qWords.filter(w => !stopWords.has(w));
+
+  let bestFaq = null;
+  let bestScore = 0;
+
+  for (const faq of FAQ) {
+    const allText = (faq.triggers.join(' ') + ' ' + faq.title).toLowerCase();
+    let score = 0;
+    for (const w of keyWords) {
+      if (allText.includes(w)) score += 2;
+    }
+    // Also check answer text for context
+    const ansText = faq.answer.toLowerCase();
+    for (const w of keyWords) {
+      if (ansText.includes(w)) score += 1;
+    }
+    if (score > bestScore) { bestScore = score; bestFaq = faq; }
+  }
+
+  // Only return if score is meaningful
+  return bestScore >= 2 ? bestFaq : null;
+}
+
+// ── CHAT UI ───────────────────────────────────────────────────────
+function addMsg(role, text, tag) {
+  const msgs = document.getElementById('msgs');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ' + (role==='bot'?'':'u');
+  const av = document.createElement('div');
+  av.className = 'av ' + (role==='bot'?'b':'u');
+  av.textContent = role==='bot'?'🤖':'👤';
+  const bbl = document.createElement('div');
+  bbl.className = 'bbl';
+  bbl.textContent = text;
+  if (tag) {
+    const t = document.createElement('div');
+    t.className = 'tag';
+    t.textContent = '📚 Topic: ' + tag;
+    bbl.appendChild(t);
+  }
+  wrap.appendChild(av); wrap.appendChild(bbl);
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('msgs');
+  const w = document.createElement('div');
+  w.className='msg'; w.id='typ';
+  w.innerHTML='<div class="av b">🤖</div><div class="typ"><div class="d"></div><div class="d"></div><div class="d"></div></div>';
+  msgs.appendChild(w); msgs.scrollTop = msgs.scrollHeight;
+}
+function rmTyping(){ const t=document.getElementById('typ'); if(t)t.remove(); }
+
+async function send() {
+  const inp = document.getElementById('inp');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  addMsg('user', text);
+  document.getElementById('sbtn').disabled = true;
+  showTyping();
+  await new Promise(r=>setTimeout(r,500));
+  rmTyping();
+
+  const q = text.toLowerCase().trim().replace(/[?!.,]/g,'');
+
+  // Greetings
+  if (['hi','hello','hey','hii','helo','hai','hi there','hello there','good morning','good evening'].some(g=>q===g||q.startsWith(g+' '))) {
+    addMsg('bot','👋 Hello! I\'m your AI FAQ Chatbot.\n\nI can answer questions about:\n• Artificial Intelligence (AI)\n• Machine Learning (ML)\n• Deep Learning\n• NLP, Neural Networks\n• Types of AI & ML\n• CNN, RNN, Transformers\n• Python for AI\n• Data Science\n• And more!\n\nType "list" to see all topics, or just ask your question!');
+    document.getElementById('sbtn').disabled=false; return;
+  }
+
+  // List all
+  if (q==='list'||q.includes('show all')||q.includes('all topics')||q.includes('all questions')||q.includes('what can you answer')) {
+    const list = FAQ.map((f,i)=>`${i+1}. ${f.title}`).join('\n');
+    addMsg('bot','📋 I can answer questions on these topics:\n\n'+list+'\n\nJust ask me about any of these!');
+    document.getElementById('sbtn').disabled=false; return;
+  }
+
+  // Help
+  if (q==='help'||q==='?'||q==='what can you do') {
+    addMsg('bot','🆘 I can answer AI & ML related questions!\n\nTry asking:\n• "What is AI?"\n• "Types of Machine Learning"\n• "What is deep learning?"\n• "What is NLP?"\n• "What is overfitting?"\n• "Why use Python for AI?"\n\nOr type "list" to see all topics!');
+    document.getElementById('sbtn').disabled=false; return;
+  }
+
+  // Find best match
+  const match = findAnswer(text);
+  if (match) {
+    addMsg('bot', match.answer, match.title);
+  } else {
+    addMsg('bot', '🤔 I couldn\'t find a specific answer to: "'+text+'"\n\nI answer questions about AI and Machine Learning topics.\n\nTry asking:\n• "What is AI?"\n• "What is machine learning?"\n• "Types of AI"\n• "What is NLP?"\n\nOr type "list" to see all available topics!');
+  }
+  document.getElementById('sbtn').disabled=false;
+}
+
+function ask(q){ document.getElementById('inp').value=q; send(); }
+
+document.getElementById('inp').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}
+});
+
+window.onload=()=>{
+  addMsg('bot','👋 Hello! I\'m your AI FAQ Chatbot!\n\nAsk me anything about Artificial Intelligence, Machine Learning, Deep Learning, NLP, Neural Networks, and more!\n\nType "list" to see all available topics, or tap a quick button above to get started!');
+};
+</script>
+</body>
+</html>
